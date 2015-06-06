@@ -12,10 +12,11 @@ namespace mydb {
   public:
     Context();
     ~Context();
-    void Open();
-    void Write(size_t ksz, void* key, 
+    bool Open(size_t dbMegabytes=1,size_t osPageSize=4096);
+    bool Write(size_t ksz, void* key,
 	       size_t dsz, void* data);
-    void GetCopy(size_t ksz, void* key, 
+    bool GetCopy(size_t ksz, void* key,
 	      void **data);
+    void Iterate();
   };
 }
