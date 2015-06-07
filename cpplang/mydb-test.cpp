@@ -10,19 +10,27 @@
 #include "mydb.hpp"
 
 void LargeRecordCursor(long unsigned int, bool,bool);
+void MakeDB(size_t mb);
 
 int main()
 {
-  long unsigned int ops = 250;
-  //LargeRecordCursor(ops,false,false);
+  size_t mb=2500;
+  long unsigned int ops = 10000000;
+  //MakeDB(mb);
 
-  LargeRecordCursor(ops,true,false);
+  //LargeRecordCursor(ops,true,false);
   LargeRecordCursor(ops,false,true);
   return 0;
 }
 
 
-
+void MakeDB(size_t mb){
+    mydb::Context con;
+    bool r;
+    r= con.Open(true,mb);//set size to xMB
+    r= con.BeginTxn();
+    r= con.EndTxn(true);
+}
 
 
 void LargeRecordCursor(long unsigned int ops, bool write, bool getCopy){
@@ -30,7 +38,9 @@ void LargeRecordCursor(long unsigned int ops, bool write, bool getCopy){
     long unsigned int recCnt=ops;
     long unsigned int ioCnt=ops*0.1;
 
-    int colCount=4096/sizeof(long unsigned int);
+    int colCount;
+    //colCount=4096/sizeof(long unsigned int);
+    colCount=20;
     size_t recSize = sizeof(long unsigned int)*colCount;
     size_t dbSize = recSize * recCnt;
     size_t dbMB = dbSize / 10485760;
@@ -39,7 +49,7 @@ void LargeRecordCursor(long unsigned int ops, bool write, bool getCopy){
     printf("Test Record: %d Count, %d Byte Size %s\n",recCnt,recSize,"LargeRecordCursor");
     printf("Test: %d Bytes, %d MB Database: %s\n",dbSize,dbMB,"LargeRecordCursor");
     if (write){
-
+      bool trnret = con.BeginTxn();
       long unsigned int x[colCount];
       for (int i=0; i<colCount; i++) x[i]=colCount-i;
 
@@ -54,6 +64,9 @@ void LargeRecordCursor(long unsigned int ops, bool write, bool getCopy){
         }
         else printf("Write FAILED %lu %lu %lu %lu\n",lui,x[0],x[1],x[colCount-2]);
       }
+      bool trncommit = con.EndTxn();
+      if (trncommit==true) printf("COMMIT SUCCESS\n");
+      else printf("COMMIT FAIL\n");
     }
     if (getCopy){
       long unsigned int *x2;

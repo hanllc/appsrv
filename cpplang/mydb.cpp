@@ -9,8 +9,13 @@ namespace mydb {
 
 Context::Context() {
     envCreateReturn = mdb_env_create (&envHandle);
+    txnHandle=nullptr;
 }
 Context::~Context() {
+  if(txnHandle!=nullptr) {
+    mdb_txn_abort(txnHandle);
+    txnHandle=nullptr;
+  }
   if (envHandle!=nullptr){
     mdb_env_close (envHandle);
     envHandle=nullptr;
@@ -53,6 +58,80 @@ bool Context::Open(bool setSize, size_t dbMegabytes,size_t osPageSize){
     }
   }
 }
+bool Context::BeginTxn(){
+  Error(0);
+  if (envHandle==nullptr){
+    return false;
+  }
+  else if (txnHandle!=nullptr){
+    return false;
+  }
+  else{
+    int txnret = mdb_txn_begin(envHandle,nullptr,0,&txnHandle);
+    if (txnret != 0) {
+      Error(txnret);
+      txnHandle=nullptr;
+      return false;
+    }
+    else{
+      int dbiret = mdb_dbi_open(txnHandle,"Entity",MDB_CREATE,&dbiHandle);
+      if (dbiret != 0){
+        Error(dbiret);
+        mdb_txn_abort(txnHandle);
+        txnHandle=nullptr;
+        return false;
+      }
+      else return true;
+    }
+  }
+}
+bool Context::EndTxn(bool commit){
+  Error(0);
+  if (envHandle==nullptr){
+    return false;
+  }
+  else if (txnHandle==nullptr){
+    return false;
+  }
+  else if (commit==false){
+    mdb_txn_abort(txnHandle);
+    txnHandle=nullptr;
+    return true;
+  }
+  else{
+    int commit = mdb_txn_commit(txnHandle);
+    if (commit!=0){
+      Error(commit);
+      txnHandle=nullptr;
+      return false;
+    }
+    else {
+      txnHandle=nullptr;
+      return true;
+    }
+  }
+}
+bool Context::Write(size_t ksz, void* key,
+		    size_t dsz, void* data){
+  Error(0);
+  if (envHandle==nullptr){
+    return false;
+  }
+  else if (txnHandle==nullptr){
+    return false;
+  }
+  else{
+    MDB_val kkey { ksz, key };
+    MDB_val ddata { dsz, data};
+    putReturn = mdb_put(txnHandle,dbiHandle,&kkey,&ddata,0);
+    if (putReturn !=0){
+      Error(putReturn);
+      return false;
+    }
+    else return true;
+  }
+}
+/*
 bool Context::Write(size_t ksz, void* key,
 		    size_t dsz, void* data){
   Error(0);
@@ -95,6 +174,7 @@ bool Context::Write(size_t ksz, void* key,
     }
   }
 }
+*/
 bool Context::GetCopy(size_t ksz, void* key,
 		   void** data){
   Error(0);
