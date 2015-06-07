@@ -12,7 +12,7 @@ namespace mydb {
   public:
     Context();
     ~Context();
-    bool Open(size_t dbMegabytes=1,size_t osPageSize=4096);
+    bool Open(bool setSize=false,size_t dbMegabytes=1,size_t osPageSize=4096);
     bool Write(size_t ksz, void* key,
 	       size_t dsz, void* data);
     bool GetCopy(size_t ksz, void* key,

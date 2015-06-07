@@ -16,7 +16,7 @@ Context::~Context() {
     envHandle=nullptr;
   }
 }
-bool Context::Open(size_t dbMegabytes,size_t osPageSize){
+bool Context::Open(bool setSize, size_t dbMegabytes,size_t osPageSize){
   size_t mbbytes = 10485760;
   if ((dbMegabytes*mbbytes % osPageSize) != 0){
     return false;
@@ -32,23 +32,24 @@ bool Context::Open(size_t dbMegabytes,size_t osPageSize){
       return false;
     }
     else{
-      size_t bytes = dbMegabytes*mbbytes;
-      int mapsizeReturn = mdb_env_set_mapsize(envHandle,bytes);
-      if(mapsizeReturn!=0){
+      int mapsizeReturn=0;
+      if (setSize==true){
+        size_t bytes = dbMegabytes*mbbytes;
+        mapsizeReturn = mdb_env_set_mapsize(envHandle,bytes);
+      }
+      if(setSize==true && mapsizeReturn!=0){
         Error(mapsizeReturn);
         return false;
       }
-      else{
-        envOpenReturn = mdb_env_open(envHandle,
-    			       "/home/joe/mydb",0,0664);
-        if (envOpenReturn!=0){
-          Error(envOpenReturn);
-          mdb_env_close(envHandle);
-          envHandle=nullptr;
-          return false;
-        }
-        else return true;
+      envOpenReturn = mdb_env_open(envHandle,
+  			       "/home/joe/mydb",0,0664);
+      if (envOpenReturn!=0){
+        Error(envOpenReturn);
+        mdb_env_close(envHandle);
+        envHandle=nullptr;
+        return false;
       }
+      else return true;
     }
   }
 }

@@ -13,10 +13,10 @@ void LargeRecordCursor(long unsigned int, bool,bool);
 
 int main()
 {
-  long unsigned int ops = 2500;
+  long unsigned int ops = 250;
   //LargeRecordCursor(ops,false,false);
 
-  //LargeRecordCursor(ops,true,false);
+  LargeRecordCursor(ops,true,false);
   LargeRecordCursor(ops,false,true);
   return 0;
 }
