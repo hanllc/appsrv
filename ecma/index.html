@@ -1,0 +1,34 @@
+<!doctype html>
+<html>
+<head>
+    <title>Figure 1</title>
+    <script src="bower_components/webcomponentsjs/webcomponents-lite.min.js"></script>
+</head>
+<body>
+<link rel="import" href="bower_components/polymer/polymer.html">
+
+<dom-module id=“my-element”>
+    <style>
+        h1 { color: red; }
+    </style>
+    <template>
+        <h1>My Element</h1>
+        <content></content>
+      <button id=“click-me” on-click="handleClick">Click Me</button>
+    </template>
+    <script>
+        Polymer({
+            is: 'my-element',
+            handleClick: function() {
+                alert('clicked');
+            }
+        });
+    </script>
+</dom-module>
+
+<my-element>
+Whatever content I want
+</my-element>
+
+</body>
+</html>
