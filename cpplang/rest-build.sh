@@ -1,7 +1,8 @@
+#copyright 2015 joe wehrli, all rights reserved; commercial licensing only
 
-#/usr/bin/clang-3.5 -std=c++14 -o ccrest.fcgi ccrest.cc -lfcgi
+#/usr/bin/clang-3.5 -g -std=c++14 -I/home/joe/appsrv/cpplang -o mydb-test mydb-test.cpp mydb.cpp -llmdb -lstdc++
 
-/usr/bin/clang-3.5 -g -v -std=c++14 -I/home/joe/appsrv/cpplang -o mydb-test mydb-test.cpp mydb.cpp -llmdb -lstdc++ 
+#/usr/bin/clang-3.5 -g -std=c++14 -I/home/joe/appsrv/cpplang -o myapp.fcgi myapp-fcgi.cpp mydb.cpp -llmdb -lstdc++ -lfcgi
 
-
-
+/usr/bin/clang-3.5 -g -std=c++14 -I/home/joe/appsrv/cpplang -o resodb-test resodb-test.cpp resodbutil.cpp mydb.cpp /home/joe/microjson/microjson-1.3/mjson.o -llmdb -lstdc++ -lfcgi
+#/usr/bin/clang-3.5 -g -std=c++14 -I/home/joe/appsrv/cpplang -o myapp.fcgi myapp-fcgi.cpp resodbutil.cpp mydb.cpp /home/joe/microjson/microjson-1.3/mjson.o -llmdb -lstdc++ -lfcgi

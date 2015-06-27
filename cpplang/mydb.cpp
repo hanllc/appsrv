@@ -1,4 +1,4 @@
-//mydb copyright 2015 joe wehrli
+//copyright 2015 joe wehrli, all rights reserved; commercial licensing only
 #include <errno.h>
 #include <string.h>
 #include <lmdb.h>
@@ -206,7 +206,6 @@ bool Context::GetCopy(size_t ksz, void* key,
           return false;
         }
         else {
-          //int i=0;
           *data = new char[ddata.mv_size];
           memcpy(*data, (void*)ddata.mv_data, (ddata.mv_size)*sizeof(char));
           int commit = mdb_txn_commit(txn);
@@ -220,22 +219,6 @@ bool Context::GetCopy(size_t ksz, void* key,
       }
     }
   }
-}
-void Context::Iterate(){
-    MDB_txn *txn;
-    int txnret = mdb_txn_begin(envHandle,nullptr,0,&txn);
-    MDB_dbi dbi;
-    int dbiret = mdb_dbi_open(txn,"Entity",0,&dbi);
-    MDB_cursor *cur;
-    int curret = mdb_cursor_open(txn,dbi,&cur);
-    MDB_val key;
-    MDB_val data;
-    int curgetret = mdb_cursor_get(cur,&key,&data,MDB_FIRST);
-    while(curgetret==0){
-      curgetret = mdb_cursor_get(cur,&key,&data,MDB_NEXT);
-    }
-    mdb_cursor_close(cur);
-    int commit = mdb_txn_commit(txn);
 }
 void Context::Error(int er){
     errorMsg = mdb_strerror(er);
@@ -252,5 +235,50 @@ void Context::Error(int er){
       break;
     }
 }
+
+
+Cursor::Cursor(Context &con){
+  curOpenRet = mdb_cursor_open(con.txnHandle,con.dbiHandle,&cur);
+}
+
+Cursor::~Cursor(){
+  mdb_cursor_close(cur);
+}
+
+bool Cursor::GetOp(size_t *ksz, void **key, size_t *dsz, void **data,
+    enum MDB_cursor_op op){
+  if (curOpenRet!=0) return false;
+  else{
+    if (op==MDB_SET){
+      kkey.mv_size = *ksz;
+      kkey.mv_data = *key;
+    }
+    curGetRet = mdb_cursor_get(cur,&kkey,&ddata,op);
+    if (curGetRet!=0)
+      return false;
+      else{
+        if (op!=MDB_SET){
+          *ksz = kkey.mv_size;
+          *key = kkey.mv_data;
+        }
+        *dsz= ddata.mv_size;
+        *data = ddata.mv_data;
+        return true;
+      }
+  }
+}
+
+bool Cursor::First(size_t *ksz, void **key, size_t *dsz, void **data){
+    return GetOp(ksz,key,dsz,data,MDB_FIRST);
+}
+
+bool Cursor::Next(size_t *ksz, void **key, size_t *dsz, void **data){
+  return GetOp(ksz,key,dsz,data,MDB_NEXT);
+}
+
+bool Cursor::Set(size_t *ksz, void **key, size_t *dsz, void **data){
+  return GetOp(ksz,key,dsz,data,MDB_SET);
+}
+
 
 }

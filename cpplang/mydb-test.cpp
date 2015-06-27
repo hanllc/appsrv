@@ -1,4 +1,4 @@
-//mydb copyright 2015 joe wehrli
+//copyright 2015 joe wehrli, all rights reserved; commercial licensing only
 
 #include <initializer_list>
 #undef _GLIBCXX_HAVE_GETS
@@ -9,17 +9,20 @@
 #include <string>
 #include "mydb.hpp"
 
-void LargeRecordCursor(long unsigned int, bool,bool);
+void LargeRecordCursor(long unsigned int, bool,bool,bool);
 void MakeDB(size_t mb);
 
 int main()
 {
-  size_t mb=2500;
-  long unsigned int ops = 10000000;
+  size_t mb=100;
+  long unsigned int ops = 1000;
   //MakeDB(mb);
 
-  //LargeRecordCursor(ops,true,false);
-  LargeRecordCursor(ops,false,true);
+  //LargeRecordCursor(ops,true,false,false);
+
+  //LargeRecordCursor(ops,false,true,false);
+
+  LargeRecordCursor(ops,false,false,true);
   return 0;
 }
 
@@ -33,10 +36,11 @@ void MakeDB(size_t mb){
 }
 
 
-void LargeRecordCursor(long unsigned int ops, bool write, bool getCopy){
+void LargeRecordCursor(long unsigned int ops,
+    bool write, bool getCopy, bool iterate){
 
     long unsigned int recCnt=ops;
-    long unsigned int ioCnt=ops*0.1;
+    long unsigned int ioCnt=ops*0.001;
 
     int colCount;
     //colCount=4096/sizeof(long unsigned int);
@@ -51,18 +55,18 @@ void LargeRecordCursor(long unsigned int ops, bool write, bool getCopy){
     if (write){
       bool trnret = con.BeginTxn();
       long unsigned int x[colCount];
-      for (int i=0; i<colCount; i++) x[i]=colCount-i;
+      for (int i=0; i<colCount; i++) x[i]=i;
 
       long unsigned int lui;
       for (lui=0; lui<recCnt; lui++) {
-        x[0]=colCount+lui;
+        x[0]=lui+1;
         bool ret = con.Write(sizeof(long unsigned int), (void*)&lui,
           sizeof(long unsigned int)*colCount, (void*)&x);
         if (ret==true) {
           if(((lui+1) % ioCnt)==0)
-            printf("Write SUCCESS %lu %lu %lu %lu\n",lui,x[0],x[1],x[colCount-2]);
+            printf("Write SUCCESS k=%lu d[0]=%lu d[last]=%lu\n",lui,x[0],x[colCount-1]);
         }
-        else printf("Write FAILED %lu %lu %lu %lu\n",lui,x[0],x[1],x[colCount-2]);
+        else if ((lui+1)%ioCnt==0)printf("Write FAILED k=%lu d[0]=%lu d[last]=%lu\n",lui,x[0],x[colCount-1]);
       }
       bool trncommit = con.EndTxn();
       if (trncommit==true) printf("COMMIT SUCCESS\n");
@@ -70,7 +74,6 @@ void LargeRecordCursor(long unsigned int ops, bool write, bool getCopy){
     }
     if (getCopy){
       long unsigned int *x2;
-      //con.Iterate();
       long unsigned int lui;
       for (lui=0; lui<recCnt; lui++) {
         bool ret = con.GetCopy(sizeof(long unsigned int), (void*)&lui, (void**) &x2);
@@ -83,6 +86,45 @@ void LargeRecordCursor(long unsigned int ops, bool write, bool getCopy){
           printf("GetCopy FAILED %lu\n",lui);
         }
       }
+    }
+    if (iterate==true){
+      bool trnret = con.BeginTxn();
+      if (trnret==true){
+        mydb::Cursor cur(con);
+        long unsigned int lui=0;
+        size_t dsz;
+        size_t ksz;
+        void *key;
+        void *data;
+        bool ret;
+        do {
+          if (lui==0)
+            ret = cur.First(&ksz, &key, &dsz, &data);
+          else
+            ret = cur.Next(&ksz, &key, &dsz, &data);
+
+          if (ret==true && (lui+1)%ioCnt==0){
+            if (lui==0)
+            printf("Cursor.First() SUCCESS i=%lu k=%lu d[0]=%lu\n",
+              lui,
+              *((unsigned long int*)key),
+              ((unsigned long int*)data)[0]
+            );
+            else
+            printf("Cursor.Next() SUCCESS i=%lu k=%lu d[0]=%lu\n",
+              lui,
+              *((unsigned long int*)key),
+              ((unsigned long int*)data)[0]
+            );
+          }
+          else {
+            if (ret==false && lui !=0) printf("Cursor.Next() FAILED \n");
+            else if(ret==false) printf("Cursor.First() FAILED \n");
+          }
+          lui++;
+        } while(ret==true);
+      }
+      bool trncommit = con.EndTxn();
     }
     return;
 }
