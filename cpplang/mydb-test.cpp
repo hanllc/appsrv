@@ -1,4 +1,3 @@
-//copyright 2015 joe wehrli, all rights reserved; commercial licensing only
 
 #include <initializer_list>
 #undef _GLIBCXX_HAVE_GETS

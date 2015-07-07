@@ -1,5 +1,4 @@
 
-//copyright 2015 joe wehrli, all rights reserved; commercial licensing only
 //RESO Data Dictionary 1.3 FINAL
 #include <ctime>
 

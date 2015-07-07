@@ -1,4 +1,4 @@
-//copyright 2015 joe wehrli, all rights reserved; commercial licensing only
+
 #include <lmdb.h>
 
 namespace mydb {

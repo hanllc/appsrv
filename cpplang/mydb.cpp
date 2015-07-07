@@ -1,4 +1,4 @@
-//copyright 2015 joe wehrli, all rights reserved; commercial licensing only
+
 #include <errno.h>
 #include <string.h>
 #include <lmdb.h>
