@@ -1,4 +1,6 @@
-function loadMyData() {
+"use script;"
+
+function restCall (method, url, handle200) {
     var xmlhttp;
 
     if (window.XMLHttpRequest) {
@@ -9,7 +11,7 @@ function loadMyData() {
     xmlhttp.onreadystatechange = function() {
         if (xmlhttp.readyState == XMLHttpRequest.DONE ) {
            if(xmlhttp.status == 200){
-               document.getElementById("MyData").innerHTML = xmlhttp.responseText;
+               handle200(xmlhttp.status, xmlhttp.responseText);
            }
            else if(xmlhttp.status == 400) {
               alert('There was an error 400')
@@ -20,6 +22,15 @@ function loadMyData() {
         }
     }
 
-    xmlhttp.open("GET", "/api/parcel", true);
+    xmlhttp.open(method, url, true);
     xmlhttp.send();
+}
+
+//lifted from http://stackoverflow.com/questions/6487167/deserialize-from-json-to-javascript-object
+function parseJSON(data) {
+    return window.JSON && window.JSON.parse ? window.JSON.parse( data ) : (new Function("return " + data))();
+}
+
+function storeJSON(partition, key, json){
+
 }

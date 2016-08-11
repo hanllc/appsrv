@@ -2,9 +2,7 @@
 #include <initializer_list>
 #undef _GLIBCXX_HAVE_GETS
 
-//#include <stdio.h>
 #include <cstdio>
-//#include <stdlib.h>
 #include <string>
 #include "mydb.hpp"
 

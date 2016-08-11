@@ -1,3 +1,5 @@
+#ifndef MYDB_H_INCLUDED
+#define MYDB_H_INCLUDED
 
 #include <lmdb.h>
 
@@ -40,3 +42,5 @@ namespace mydb {
       bool Set(size_t *ksz, void **key, size_t *dsz, void **data);
   };
 }
+
+#endif

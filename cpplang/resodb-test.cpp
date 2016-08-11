@@ -2,14 +2,14 @@
 #include <initializer_list>
 #undef _GLIBCXX_HAVE_GETS
 
-//#include <stdio.h>
 #include <cstdio>
-//#include <stdlib.h>
+
 #include <string>
 #include <cstring>
 
 #include "mydb.hpp"
 #include "resodb.hpp"
+#include "resodbutil.hpp"
 
 void ResoCoreCursor(long unsigned int, bool,bool,bool);
 
@@ -18,12 +18,12 @@ void MakeDB(size_t mb);
 int main()
 {
   size_t mb=750;
-  long unsigned int ops = 300000;
-  //MakeDB(mb);
+  long unsigned int ops = 200000;
+  MakeDB(mb);
 
-  //ResoCoreCursor(ops,true,false,false);
+  ResoCoreCursor(ops,true,false,false);
   //ResoCoreCursor(ops,false,true,false);
-  ResoCoreCursor(ops,false,false,true);
+  //ResoCoreCursor(ops,false,false,true);
 
   return 0;
 }
@@ -54,8 +54,10 @@ void ResoCoreCursor(long unsigned int ops,
     if (write){
       bool trnret = con.BeginTxn();
       struct reso_core rs;
+      mydb::ResoCoreUtil rUtil;
       long unsigned int lui;
       for (lui=0; lui<recCnt; lui++) {
+        rUtil.Initialize(&rs);
         std::string result = std::to_string(lui);
         bool ret=false;
         if( result.length() < CHARSIZE_ListingKey ){

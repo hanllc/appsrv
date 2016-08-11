@@ -1,9 +1,8 @@
 
 
-#include <fcgi_stdio.h>
+#include <fcgi_stdio.h>//must be first
 #include <stdlib.h>
 #include <cstring>
-
 #include "resodbutil.hpp"
 
 #define MAX_VARS 30
@@ -23,8 +22,11 @@ int main(void){
 
         if ( URI("/api/parcel") ){
           if ( OP("GET") ) {
+            /*
             printf("Content-type: text/plain\r\n\r\n"
                  "Request number %d was GET /api/parcel\n", ++count);
+                 */
+            printf("Content-type: text/plain\r\n\r\n");
             qry.GetAll(stdout);
           }
           else {
