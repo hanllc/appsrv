@@ -21,9 +21,9 @@ int main()
   long unsigned int ops = 200000;
   MakeDB(mb);
 
-  ResoCoreCursor(ops,true,false,false);
+  //ResoCoreCursor(ops,true,false,false);
   //ResoCoreCursor(ops,false,true,false);
-  //ResoCoreCursor(ops,false,false,true);
+  ResoCoreCursor(ops,false,false,true);
 
   return 0;
 }
@@ -42,7 +42,7 @@ void ResoCoreCursor(long unsigned int ops,
     bool write, bool getCopy, bool iterate){
 
     long unsigned int recCnt=ops;
-    long unsigned int ioCnt=ops*0.001;
+    long unsigned int ioCnt=ops*0.02;
 
     size_t recSize = sizeof(struct reso_core);
     size_t dbSize = recSize * recCnt;

@@ -1,11 +1,15 @@
-#include <fcgi_stdio.h>//must be first
+//#include <fcgi_stdio.h>//must be first
 
+#include <iostream>
+#include <fcgio.h>
 #include <string>
 
 //#include "/home/joe/microjson/microjson-1.3/mjson.h"
 
 #include "mydb.hpp"
 #include "resodbutil.hpp"
+
+using namespace std;
 
 namespace mydb {
 
@@ -21,22 +25,40 @@ namespace mydb {
   */
 
 //open array and close array
-#define OA() printf("[\n")
-#define CA() printf("\n]")
+  
+//#define OA() printf("[\n")
+//#define CA() printf("\n]")
 
 //open array and close object
-#define OO() printf("{\n")
-#define CO() printf("}\n")
+//#define OO() printf("{\n")
+//#define CO() printf("}\n")
 
 //name: and name: string value
-#define N(N) printf("\"%s\":" ,N)
-#define N_SV(N,SV) printf("\"%s\" : \"%s\"",N,SV)
-#define N_DV(N,DV) printf("\"%s\" : \"%f\"",N,DV)
+//#define N(N) printf("\"%s\":" ,N)
+//#define N_SV(N,SV) printf("\"%s\" : \"%s\"",N,SV)
+//#define N_DV(N,DV) printf("\"%s\" : \"%f\"",N,DV)
 
-#define M() printf(",\n")
+//#define M() printf(",\n")
 
+//open array and close array  
+#define OA() os << "[\n"
+#define CA() os << "\n]"
+
+//open array and close object
+#define OO() os << "{\n"
+#define CO() os << "}\n"
+
+//name: and name: string value
+#define N(N) os << "\"" << N << "\":"
+#define N_SV(N,SV) os << "\"" << N << "\":" << "\"" << SV << "\""
+#define N_DV(N,DV) os << "\"" << N << "\":" << "\"" << DV << "\""
+
+#define M() os << ",\n"
+
+  
 void ResoCoreUtil::ToJson(
-  struct reso_core* core) {
+			  struct reso_core* core,
+			  ostream& os) {
     OO();
       N("Listing");
       OO();
@@ -92,7 +114,7 @@ void ResoCoreUtil::Initialize(
 
 
 
-void ResoCoreQuery::GetAll(FILE *out, long unsigned int maxRecords) {
+  void ResoCoreQuery::GetAll(std::ostream& os, long unsigned int maxRecords) {
   int i=0;
   mydb::Context con;
   con.Open();
@@ -105,13 +127,13 @@ void ResoCoreQuery::GetAll(FILE *out, long unsigned int maxRecords) {
     bool ret=false;
     OA();
     if ( (ret=cur.First(&ksz, &key, &dsz, &data))==true){
-      u.ToJson((struct reso_core*)data);
+      u.ToJson((struct reso_core*)data, os);
       while(ret==true){
         if(i++>maxRecords) break;
         ret = cur.Next(&ksz, &key, &dsz, &data);
         if (ret==true){
           M();
-          u.ToJson((struct reso_core*)data);
+          u.ToJson((struct reso_core*)data, os);
         }
       }
     }

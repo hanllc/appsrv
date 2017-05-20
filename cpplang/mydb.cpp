@@ -47,7 +47,7 @@ bool Context::Open(bool setSize, size_t dbMegabytes,size_t osPageSize){
         return false;
       }
       envOpenReturn = mdb_env_open(envHandle,
-  			       "/home/joe/mydb",0,0664);
+  			       "/root/mydb",0,0664);
       if (envOpenReturn!=0){
         Error(envOpenReturn);
         mdb_env_close(envHandle);

@@ -27,7 +27,7 @@ int main(void){
                  "Request number %d was GET /api/parcel\n", ++count);
                  */
             printf("Content-type: text/plain\r\n\r\n");
-            qry.GetAll(stdout);
+            qry.GetAll();
           }
           else {
             printf("Content-type: text/plain\r\n\r\n"
