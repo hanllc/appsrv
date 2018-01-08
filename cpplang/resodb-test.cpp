@@ -17,14 +17,20 @@ void MakeDB(size_t mb);
 
 int main()
 {
-  size_t mb=750;
-  long unsigned int ops = 200000;
+  size_t mb=550;
+  long unsigned int ops = 50000;
   MakeDB(mb);
-
-  //ResoCoreCursor(ops,true,false,false);
-  //ResoCoreCursor(ops,false,true,false);
+  
+  //write or getcopy or iterate
+  try {
+    //ResoCoreCursor(ops,true,false,false);
+    //ResoCoreCursor(ops,false,true,false);
   ResoCoreCursor(ops,false,false,true);
-
+  }
+  catch (...){
+    printf("General Program EXCEPTION Occurred");
+    return 1;
+  }
   return 0;
 }
 
@@ -42,7 +48,7 @@ void ResoCoreCursor(long unsigned int ops,
     bool write, bool getCopy, bool iterate){
 
     long unsigned int recCnt=ops;
-    long unsigned int ioCnt=ops*0.02;
+    long unsigned int ioCnt=ops*0.1;
 
     size_t recSize = sizeof(struct reso_core);
     size_t dbSize = recSize * recCnt;
@@ -126,12 +132,17 @@ void ResoCoreCursor(long unsigned int ops,
             (*((struct reso_core*)data)).Listing.ListingKey
             );
           }
-          else {
-            if (ret==false && lui !=0) printf("Cursor.Next() FAILED \n");
-            else if (ret==false) printf("Cursor.First() FAILED \n");
-          }
-          lui++;
-        } while(ret==true);
+	  else {
+	    if (ret==false){
+	      if (lui == 0) printf("Cursor.First() FAILED lua:%ld\n",lui);
+	      else if (lui < ops) printf("Cursor.Next() FAILED lui:%ld\n", lui);
+	      }
+	  }
+	  lui++;
+	} while(ret==true);
+	
+	if (lui-1 == ops) printf("Cursor PROCESSING SUCCESS lui:%ld:%ld\n", lui,ops);
+	else printf("Cursor PROCESSING FAILED lui:%ld:%ld\n", lui,ops);
       }
       bool trncommit = con.EndTxn();
     }
